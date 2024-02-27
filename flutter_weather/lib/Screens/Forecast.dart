@@ -1,26 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class WeatherData {
+  final String date;
+  final String iconID;
   final double temperature;
 
-  WeatherData(this.temperature);
+  WeatherData(this.date, this.iconID, this.temperature);
 
 }
 
-final List<WeatherData> weatherForecast = [
-  WeatherData(1),
-  WeatherData(2),
-  WeatherData(3),
-  WeatherData(4),
-  WeatherData(5),
-  WeatherData(6),
-  WeatherData(7),
-  WeatherData(8),
-  WeatherData(9),
-  WeatherData(10),
-  WeatherData(11),
-
-];
 
 class Forecast extends StatefulWidget {
 
@@ -33,6 +23,38 @@ class Forecast extends StatefulWidget {
 }
 
 class _ForecastState extends State<Forecast> {
+
+  List<WeatherData> weatherForecast = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchForecast();
+  }
+
+  void fetchForecast() async {
+    Uri uri = Uri.parse("https://api.openweathermap.org/data/2.5/forecast?q=${widget.cityName}&units=metric&appid=dba60f59482d08e0f171893a7c1214b6");
+    var response = await http.get(uri);
+    if( response.statusCode == 200) {
+      var weatherData = json.decode(response.body);
+      setState(() {
+        weatherForecast = parseWeatherData(weatherData);
+      });
+    }
+  }
+
+  List<WeatherData> parseWeatherData(dynamic weatherData) {
+    List<WeatherData> forecastList = [];
+
+    for (var data in weatherData['list']) {
+      String date = data['dt_txt'];
+      String iconID = data['weather'][0]['icon'];
+      double temperature = data['main']['temp'].toDouble();
+      forecastList.add(WeatherData(date, iconID, temperature));
+    }
+    return forecastList;
+  }
+
   @override
   Widget build(BuildContext context) {
     print("");
@@ -49,7 +71,7 @@ class _ForecastState extends State<Forecast> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.cityName),
+        title: const Text("Forecast"),
       ),
       body: ListView.builder(
         itemCount: weatherForecast.length,
@@ -65,11 +87,11 @@ class _ForecastState extends State<Forecast> {
                 width: 80,
                 height: 80,
                 child: Image.network(
-                  'https://openweathermap.org/img/wn/10d@4x.png',
+                  'https://openweathermap.org/img/wn/${weatherForecast[index].iconID}@4x.png',
                   fit: BoxFit.cover,
                 ),
               ),
-              title: const Text("DATE AND TIME", style: TextStyle(fontSize: 20),),
+              title: Text(weatherForecast[index].date, style: const TextStyle(fontSize: 20)),
               subtitle: Text("${weatherForecast[index].temperature} °C", style: const TextStyle(fontSize: 20)),
             ),
           );
