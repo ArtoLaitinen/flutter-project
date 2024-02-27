@@ -107,20 +107,6 @@ class _CurrentWeatherState extends State<CurrentWeather> {
                 )
               ),
 
-              Container(
-                margin: const EdgeInsets.symmetric(vertical: 20),
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    fixedSize: const Size(300, 60),
-                    backgroundColor: Colors.blue,
-                  ),
-                  child: const Text("FORECAST", style: TextStyle(color: Colors.white)),
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/second');
-                  },
-                ),
-              )
-
             ],
           )
         ),
