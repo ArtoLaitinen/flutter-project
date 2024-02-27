@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:intl/intl.dart';
 
 class WeatherData {
   final String date;
   final String iconID;
-  final double temperature;
+  final int temperature;
 
   WeatherData(this.date, this.iconID, this.temperature);
 
@@ -47,9 +48,9 @@ class _ForecastState extends State<Forecast> {
     List<WeatherData> forecastList = [];
 
     for (var data in weatherData['list']) {
-      String date = data['dt_txt'];
+      String date = DateFormat('dd.MM H:mm').format(DateTime.parse(data['dt_txt']));
       String iconID = data['weather'][0]['icon'];
-      double temperature = data['main']['temp'].toDouble();
+      int temperature = data['main']['temp'].round();
       forecastList.add(WeatherData(date, iconID, temperature));
     }
     return forecastList;
@@ -91,8 +92,8 @@ class _ForecastState extends State<Forecast> {
                   fit: BoxFit.cover,
                 ),
               ),
-              title: Text(weatherForecast[index].date, style: const TextStyle(fontSize: 20)),
-              subtitle: Text("${weatherForecast[index].temperature} °C", style: const TextStyle(fontSize: 20)),
+              title: Text(weatherForecast[index].date, style: const TextStyle(fontSize: 30)),
+              subtitle: Text("${weatherForecast[index].temperature} °C", style: const TextStyle(fontSize: 30, color: Colors.black)),
             ),
           );
         },
