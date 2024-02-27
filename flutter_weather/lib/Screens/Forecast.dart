@@ -22,14 +22,23 @@ final List<WeatherData> weatherForecast = [
 
 ];
 
-class Forecast extends StatelessWidget {
-  const Forecast({super.key});
+class Forecast extends StatefulWidget {
+  //const Forecast({super.key});
 
+  final String cityName;
+
+  const Forecast({super.key, required this.cityName});
+
+  @override
+  State<Forecast> createState() => _ForecastState();
+}
+
+class _ForecastState extends State<Forecast> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Forecast"),
+        title: Text(widget.cityName),
       ),
       body: ListView.builder(
         itemCount: weatherForecast.length,

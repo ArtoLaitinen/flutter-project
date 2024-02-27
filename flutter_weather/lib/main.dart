@@ -26,6 +26,14 @@ class Navigation extends StatefulWidget {
 
 class _NavigationState extends State<Navigation> {
   int currentPageIndex = 0;
+  String cityName = 'Tampere';
+
+  // Function to update the city
+  void updateCity(String newCity) {
+    setState(() {
+      cityName = newCity;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,8 +62,8 @@ class _NavigationState extends State<Navigation> {
         ],
       ),
       body: <Widget>[
-        const CurrentWeather(),
-        const Forecast(),
+        CurrentWeather(cityName: cityName, updateCity: updateCity ),
+        Forecast(cityName: cityName),
       ][currentPageIndex],
     );
   }

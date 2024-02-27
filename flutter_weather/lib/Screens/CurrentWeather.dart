@@ -3,14 +3,17 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class CurrentWeather extends StatefulWidget {
-  const CurrentWeather({super.key});
+  //const CurrentWeather({super.key});
+  final String cityName;
+  final Function(String) updateCity;
+
+  const CurrentWeather({super.key, required this.cityName, required this.updateCity});
 
   @override
   State<CurrentWeather> createState() => _CurrentWeatherState();
 }
 
 class _CurrentWeatherState extends State<CurrentWeather> {
-  String cityName = "Tampere";
   String iconID = "10d";
   double temperature = 0;
   double windSpeed = 0;
@@ -24,9 +27,9 @@ class _CurrentWeatherState extends State<CurrentWeather> {
       setState(() {
         temperature = weatherData['main']['temp'];
         windSpeed = weatherData['wind']['speed'];
-        cityName = weatherData['name'];
         iconID = weatherData['weather'][0]['icon'];
       });
+      widget.updateCity(weatherData['name']);
     }
   }
 
@@ -44,7 +47,7 @@ class _CurrentWeatherState extends State<CurrentWeather> {
               Container(
                 margin: const EdgeInsets.all(20),
                 child: Text(
-                  cityName,
+                  widget.cityName,
                   style: const TextStyle(
                     fontSize: 40,
                   ),
