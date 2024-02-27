@@ -96,15 +96,29 @@ class _CurrentWeatherState extends State<CurrentWeather> {
                 margin: const EdgeInsets.symmetric(horizontal: 20),
                 child: Column(
                   children: <Widget>[
-                    TextField(
-                      decoration: const InputDecoration(labelText: 'ENTER A CITY'),
-                      onChanged:(value) {
-                        setState(() {
-                          inputCity = value;
-                        });
-                      },
+                    Row(
+                      children: <Widget>[
+                        Flexible(
+                          child: TextField(
+                            decoration: const InputDecoration(labelText: 'ENTER A CITY'),
+                            onChanged:(value) {
+                              setState(() {
+                                inputCity = value;
+                              });
+                            },
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () {
+                          },
+                          icon: const Icon(Icons.my_location),
+                          iconSize: 40
+                        ),
+                      ],
                     ),
+
                     const SizedBox(height: 20),
+
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         fixedSize: const Size(300, 60),
