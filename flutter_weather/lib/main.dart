@@ -26,12 +26,25 @@ class Navigation extends StatefulWidget {
 
 class _NavigationState extends State<Navigation> {
   int currentPageIndex = 0;
+
   String cityName = 'Tampere';
+  double temperature = 0;
+  double windSpeed = 0;
+  String iconID = "10d";
 
   // Function to update the city
   void updateCity(String newCity) {
     setState(() {
       cityName = newCity;
+    });
+  }
+
+  // Function to update the weather data
+  void updateWeatherData(double temp, double speed, String icon) {
+    setState(() {
+      temperature = temp;
+      windSpeed = speed;
+      iconID = icon;
     });
   }
 
@@ -62,7 +75,14 @@ class _NavigationState extends State<Navigation> {
         ],
       ),
       body: <Widget>[
-        CurrentWeather(cityName: cityName, updateCity: updateCity ),
+        CurrentWeather(
+          cityName: cityName,
+          updateCity: updateCity,
+          temperature: temperature,
+          windSpeed: windSpeed,
+          iconID: iconID,
+          updateWeatherData: updateWeatherData,
+        ),
         Forecast(cityName: cityName),
       ][currentPageIndex],
     );

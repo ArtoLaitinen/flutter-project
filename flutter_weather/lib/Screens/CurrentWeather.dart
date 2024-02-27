@@ -3,21 +3,31 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class CurrentWeather extends StatefulWidget {
-  //const CurrentWeather({super.key});
   final String cityName;
   final Function(String) updateCity;
+  final double temperature;
+  final double windSpeed;
+  final String iconID;
+  final Function(double, double, String) updateWeatherData;
 
-  const CurrentWeather({super.key, required this.cityName, required this.updateCity});
+
+  const CurrentWeather({
+    super.key,
+    required this.cityName,
+    required this.updateCity,
+    required this.temperature,
+    required this.windSpeed,
+    required this.iconID,
+    required this.updateWeatherData,
+  });
 
   @override
   State<CurrentWeather> createState() => _CurrentWeatherState();
 }
 
 class _CurrentWeatherState extends State<CurrentWeather> {
-  String iconID = "10d";
-  double temperature = 0;
-  double windSpeed = 0;
   String inputCity = "";
+
 
   void fetchWeatherData() async {
     Uri uri = Uri.parse("https://api.openweathermap.org/data/2.5/weather?q=$inputCity&units=metric&appid=dba60f59482d08e0f171893a7c1214b6");
@@ -25,16 +35,15 @@ class _CurrentWeatherState extends State<CurrentWeather> {
     if( response.statusCode == 200) {
       var weatherData = json.decode(response.body);
       setState(() {
-        temperature = weatherData['main']['temp'];
-        windSpeed = weatherData['wind']['speed'];
-        iconID = weatherData['weather'][0]['icon'];
+        widget.updateCity(weatherData['name']);
+        widget.updateWeatherData(weatherData['main']['temp'], weatherData['wind']['speed'], weatherData['weather'][0]['icon'] );
       });
-      widget.updateCity(weatherData['name']);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
 
         appBar: AppBar(
@@ -59,18 +68,18 @@ class _CurrentWeatherState extends State<CurrentWeather> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    Image.network('https://openweathermap.org/img/wn/$iconID@4x.png'),
+                    Image.network('https://openweathermap.org/img/wn/${widget.iconID}@4x.png'),
                      Column(
                       children: <Widget>[
                         Text(
-                          '$temperature °C',
+                          '${widget.temperature} °C',
                           style: const TextStyle(
                             fontSize: 30,
                           ),
                         ),
 
                         Text(
-                          '$windSpeed m/s',
+                          '${widget.windSpeed} m/s',
                           style: const TextStyle(
                             fontSize: 30,
                           ),

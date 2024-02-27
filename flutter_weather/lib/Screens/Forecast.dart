@@ -23,7 +23,6 @@ final List<WeatherData> weatherForecast = [
 ];
 
 class Forecast extends StatefulWidget {
-  //const Forecast({super.key});
 
   final String cityName;
 
@@ -36,6 +35,18 @@ class Forecast extends StatefulWidget {
 class _ForecastState extends State<Forecast> {
   @override
   Widget build(BuildContext context) {
+    print("");
+    print("");
+    print("");
+    print("");
+    print("");
+    print("forecast state called");
+    print("");
+    print("");
+    print("");
+    print("");
+    print("");
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.cityName),
