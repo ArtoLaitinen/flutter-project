@@ -72,7 +72,7 @@ class _ForecastState extends State<Forecast> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Forecast"),
+        title: Text("${widget.cityName} Forecast"),
       ),
       body: ListView.builder(
         itemCount: weatherForecast.length,
