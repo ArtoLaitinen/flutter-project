@@ -38,6 +38,7 @@ class CurrentWeather extends StatefulWidget {
 class _CurrentWeatherState extends State<CurrentWeather> {
   String inputCity = "";
   String? errorMessage;
+  bool gettingLocation = false;
   final TextEditingController textFiedController = TextEditingController();
 
 
@@ -81,9 +82,15 @@ class _CurrentWeatherState extends State<CurrentWeather> {
 
   void fetchWeatherWithCurrentLocation() async {
     if( await Permission.location.request().isGranted){
+      setState(() {
+        gettingLocation = true;
+      });
       Location location = Location();
       LocationData currentLocation = await location.getLocation();
       fetchWeatherData(GpsLocation(currentLocation.latitude, currentLocation.longitude));
+      setState(() {
+        gettingLocation = false;
+      });
     } else {
       setState(() {
         errorMessage = "No location granted";
@@ -114,58 +121,65 @@ class _CurrentWeatherState extends State<CurrentWeather> {
                 ),
               ),
 
-              errorMessage != null
-              ? SizedBox(
+              gettingLocation == true
+              ? const SizedBox(
                   height: 200,
-                  child: Text(
-                    errorMessage!,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(color: Colors.red, fontSize: 30),
-                  )
+                  child: Center(
+                    child: CircularProgressIndicator(
+                      color: Colors.blue,
+                    ),
+                  ),
                 )
-              : widget.cityName != ''
-              ? Container(
-                  margin: const EdgeInsets.fromLTRB(5, 50, 20, 50),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Image.network(
-                        'https://openweathermap.org/img/wn/${widget.iconID}@4x.png',
-                        errorBuilder: (context, error, stackTrace) {
-                          return const Text("Failed to load image!");
-                        },
-                      ),
-                      Column(
-                        children: <Widget>[
-                          Text(
-                            '${widget.temperature} °C',
-                            style: const TextStyle(
-                              fontSize: 30,
-                            ),
-                          ),
-
-                          Text(
-                            '${widget.windSpeed} m/s',
-                            style: const TextStyle(
-                              fontSize: 30,
-                            ),
-                          ),
-
-                        ],
-                      )
-                    ],
-                  )
-                )
-                : const SizedBox(
+              : errorMessage != null
+                ? SizedBox(
                     height: 200,
                     child: Text(
-                      "No city selected",
+                      errorMessage!,
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.red, fontSize: 30),
+                      style: const TextStyle(color: Colors.red, fontSize: 30),
                     )
-                  ),
+                  )
+                : widget.cityName != ''
+                  ? Container(
+                      margin: const EdgeInsets.fromLTRB(5, 50, 20, 50),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Image.network(
+                            'https://openweathermap.org/img/wn/${widget.iconID}@4x.png',
+                            errorBuilder: (context, error, stackTrace) {
+                              return const Text("Failed to load image!");
+                            },
+                          ),
+                          Column(
+                            children: <Widget>[
+                              Text(
+                                '${widget.temperature} °C',
+                                style: const TextStyle(
+                                  fontSize: 30,
+                                ),
+                              ),
 
+                              Text(
+                                '${widget.windSpeed} m/s',
+                                style: const TextStyle(
+                                  fontSize: 30,
+                                ),
+                              ),
 
+                            ],
+                          )
+                        ],
+                      )
+                    )
+                  : const SizedBox(
+                      height: 200,
+                      child: Text(
+                        "No city selected",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.red, fontSize: 30),
+                      )
+                    ),
 
 
               Container(
