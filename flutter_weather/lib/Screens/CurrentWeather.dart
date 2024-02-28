@@ -46,6 +46,7 @@ class _CurrentWeatherState extends State<CurrentWeather> {
     try{
       Uri uri;
 
+      // using the correct uri based on if location was given
       if(currentLocation == null){
         uri = Uri.parse("https://api.openweathermap.org/data/2.5/weather?q=$inputCity&units=metric&appid=dba60f59482d08e0f171893a7c1214b6");
       } else {
