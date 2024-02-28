@@ -1,6 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:location/location.dart';
+import 'package:permission_handler/permission_handler.dart';
+
+class GpsLocation {
+  final double? latitude;
+  final double? longitude;
+
+  GpsLocation(this.latitude, this.longitude);
+}
 
 class CurrentWeather extends StatefulWidget {
   final String cityName;
@@ -27,10 +36,19 @@ class CurrentWeather extends StatefulWidget {
 
 class _CurrentWeatherState extends State<CurrentWeather> {
   String inputCity = "";
+  final TextEditingController textFiedController = TextEditingController();
 
 
-  void fetchWeatherData() async {
-    Uri uri = Uri.parse("https://api.openweathermap.org/data/2.5/weather?q=$inputCity&units=metric&appid=dba60f59482d08e0f171893a7c1214b6");
+
+  void fetchWeatherData([GpsLocation? currentLocation]) async {
+    Uri uri;
+
+    if(currentLocation == null){
+      uri = Uri.parse("https://api.openweathermap.org/data/2.5/weather?q=$inputCity&units=metric&appid=dba60f59482d08e0f171893a7c1214b6");
+    } else {
+      uri = Uri.parse("https://api.openweathermap.org/data/2.5/weather?lat=${currentLocation.latitude}&lon=${currentLocation.longitude}&units=metric&appid=dba60f59482d08e0f171893a7c1214b6");
+    }
+
     var response = await http.get(uri);
     if( response.statusCode == 200) {
       var weatherData = json.decode(response.body);
@@ -38,6 +56,14 @@ class _CurrentWeatherState extends State<CurrentWeather> {
         widget.updateCity(weatherData['name']);
         widget.updateWeatherData(weatherData['main']['temp'], weatherData['wind']['speed'], weatherData['weather'][0]['icon'] );
       });
+    }
+  }
+
+  void fetchWeatherWithCurrentLocation() async {
+    if( await Permission.location.request().isGranted){
+      Location location = Location();
+      LocationData currentLocation = await location.getLocation();
+      fetchWeatherData(GpsLocation(currentLocation.latitude, currentLocation.longitude));
     }
   }
 
@@ -101,6 +127,7 @@ class _CurrentWeatherState extends State<CurrentWeather> {
                         Flexible(
                           child: TextField(
                             decoration: const InputDecoration(labelText: 'ENTER A CITY'),
+                            controller: textFiedController,
                             onChanged:(value) {
                               setState(() {
                                 inputCity = value;
@@ -110,6 +137,8 @@ class _CurrentWeatherState extends State<CurrentWeather> {
                         ),
                         IconButton(
                           onPressed: () {
+                            fetchWeatherWithCurrentLocation();
+                            textFiedController.clear();
                           },
                           icon: const Icon(Icons.my_location),
                           iconSize: 40
@@ -126,6 +155,7 @@ class _CurrentWeatherState extends State<CurrentWeather> {
                       ),
                       onPressed: () {
                         fetchWeatherData();
+                        textFiedController.clear();
                       },
                       child: const Text("GET CURRENT WEATHER", style: TextStyle(color: Colors.white))
                     ),
