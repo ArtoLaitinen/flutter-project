@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:intl/intl.dart';
+import 'dart:io';
 
 class WeatherData {
   final String date;
@@ -26,6 +27,7 @@ class Forecast extends StatefulWidget {
 class _ForecastState extends State<Forecast> {
 
   List<WeatherData> weatherForecast = [];
+  String? errorMessage;
 
   @override
   void initState() {
@@ -34,12 +36,26 @@ class _ForecastState extends State<Forecast> {
   }
 
   void fetchForecast() async {
-    Uri uri = Uri.parse("https://api.openweathermap.org/data/2.5/forecast?q=${widget.cityName}&units=metric&appid=dba60f59482d08e0f171893a7c1214b6");
-    var response = await http.get(uri);
-    if( response.statusCode == 200) {
-      var weatherData = json.decode(response.body);
+    try{
+      Uri uri = Uri.parse("https://api.openweathermap.org/data/2.5/forecast?q=${widget.cityName}&units=metric&appid=dba60f59482d08e0f171893a7c1214b6");
+      var response = await http.get(uri);
+      if( response.statusCode == 200) {
+        var weatherData = json.decode(response.body);
+        setState(() {
+          weatherForecast = parseWeatherData(weatherData);
+        });
+      } else {
+        setState(() {
+          errorMessage = "Failed to fetch forecast data. \nPlease try again later.";
+        });
+      }
+    } on SocketException catch (_) {
       setState(() {
-        weatherForecast = parseWeatherData(weatherData);
+        errorMessage = "No internet connection. \nPlease check your network settings.";
+      });
+    } catch (e) {
+      setState(() {
+        errorMessage = "An unexpected error occurred. \nPlease try again later.";
       });
     }
   }
@@ -58,46 +74,47 @@ class _ForecastState extends State<Forecast> {
 
   @override
   Widget build(BuildContext context) {
-    print("");
-    print("");
-    print("");
-    print("");
-    print("");
-    print("forecast state called");
-    print("");
-    print("");
-    print("");
-    print("");
-    print("");
 
     return Scaffold(
       appBar: AppBar(
         title: Text("${widget.cityName} Forecast"),
       ),
-      body: ListView.builder(
-        itemCount: weatherForecast.length,
-        itemBuilder: (context, index) {
-          return  Container(
-            margin: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.grey,
-              borderRadius: BorderRadius.circular(5),
+
+      body: errorMessage != null
+        ? Center(
+            child: Text(
+              errorMessage!,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Colors.red, fontSize: 30),
             ),
-            child: ListTile(
-              leading: Container(
-                width: 80,
-                height: 80,
-                child: Image.network(
-                  'https://openweathermap.org/img/wn/${weatherForecast[index].iconID}@4x.png',
-                  fit: BoxFit.cover,
-                ),
+          )
+
+        : weatherForecast.isEmpty
+            ? const Center(child: CircularProgressIndicator( color: Colors.blue,))
+            : ListView.builder(
+                itemCount: weatherForecast.length,
+                itemBuilder: (context, index) {
+                  return Container(
+                    margin: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.grey,
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    child: ListTile(
+                      leading: Container(
+                        width: 80,
+                        height: 80,
+                        child: Image.network(
+                          'https://openweathermap.org/img/wn/${weatherForecast[index].iconID}@4x.png',
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      title: Text(weatherForecast[index].date, style: const TextStyle(fontSize: 30)),
+                      subtitle: Text("${weatherForecast[index].temperature} °C", style: const TextStyle(fontSize: 30, color: Colors.black)),
+                    ),
+                  );
+                },
               ),
-              title: Text(weatherForecast[index].date, style: const TextStyle(fontSize: 30)),
-              subtitle: Text("${weatherForecast[index].temperature} °C", style: const TextStyle(fontSize: 30, color: Colors.black)),
-            ),
-          );
-        },
-      ),
     );
   }
 }
